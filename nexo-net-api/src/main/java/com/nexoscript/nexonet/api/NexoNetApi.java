@@ -1,9 +1,8 @@
 package com.nexoscript.nexonet.api;
 
-import com.nexoscript.nexonet.api.networking.Server;
-import com.nexoscript.nexonet.api.packet.PacketManager;
+import com.nexoscript.nexonet.api.packet.IPacketManager;
 
 public interface NexoNetApi {
-    PacketManager getPacketManager();
-    void setPacketManager(Server server);
+    IPacketManager getPacketManager();
+    void setPacketManager(IPacketManager packetManager);
 }
