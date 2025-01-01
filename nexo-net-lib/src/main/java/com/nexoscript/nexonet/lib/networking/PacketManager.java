@@ -5,6 +5,7 @@ import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.api.packet.Packet;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class PacketManager implements IPacketManager {
     private Gson gson;
@@ -16,7 +17,6 @@ public class PacketManager implements IPacketManager {
         }
         PrintWriter printWriter = new PrintWriter(outputStream);
         printWriter.println(gson.toJson(packet));
-        printWriter.close();
         return packet;
     }
 
@@ -29,7 +29,6 @@ public class PacketManager implements IPacketManager {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             if ((line = bufferedReader.readLine()) != null) {
-                bufferedReader.close();
                 return gson.fromJson(line, tClass);
             }
             return null;
