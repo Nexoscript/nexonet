@@ -5,17 +5,18 @@ import com.nexoscript.nexonet.api.networking.IServer;
 import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.api.utils.BiConsumer;
 import com.nexoscript.nexonet.lib.NexoNetLib;
+import com.nexoscript.nexonet.lib.defpacket.DataPacket;
 import com.nexoscript.nexonet.lib.defpacket.auth.AuthPacket;
 import com.nexoscript.nexonet.lib.defpacket.auth.AuthPacketResponse;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Server extends Thread implements IServer {
@@ -48,42 +49,31 @@ public class Server extends Thread implements IServer {
         while (isRunning) {
             try {
                 System.out.println(this.serverSocket.accept().toString());
-                var tempClient = new Client("", this.serverSocket.accept());
+                var tempClient = new Client(UUID.randomUUID().toString(), this.serverSocket.accept());
+                this.clients.put(tempClient.getID(), tempClient);
+                this.onConnect.accept(tempClient);
                 if (tempClient.getInputStream() == null) {
                     System.out.println("NULL INPUT STREAM");
                     continue;
-                }
-                if (tempClient.getInputStream().available() > 0) {
-                    Packet packet = NexoNetLib.getInstance().getPacketManager().deserialize(tempClient.getInputStream(), Packet.class);
-                    System.out.println("DESEARLIZE PACKET");
-                    if(packet instanceof AuthPacket authPacket) {
-                        System.out.println("PACKET Auth");
-                        tempClient.setID(authPacket.getId());
-                        tempClient.setAuth(true);
-                        this.clients.put(tempClient.getID(), tempClient);
-                        NexoNetLib.getInstance()
-                                .getPacketManager()
-                                .serialize(tempClient.getOutputStream(), new AuthPacketResponse("AUTH_RESPONSE", true));
-                        this.onConnect.accept(tempClient);
-                    }
-                }
-                this.clients.forEach((clientID, client ) -> {
-                    try {
-                        if(client.getInputStream().available() > 0) {
-                            if(client.isAuth()) {
-                                this.onReceive.accept(client, NexoNetLib.getInstance()
-                                        .getPacketManager().deserialize(client.getInputStream(), Packet.class));
+                } else {
+                    this.clients.forEach((clientID, client) -> {
+                        try {
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+                            String line;
+                            if ((line = reader.readLine()) != null) {
+                                System.out.println("[Server] -> " + line);
+                                this.onReceive.accept(tempClient, new DataPacket("DATA", line));
+                                if(line.contains("ping")) {
+                                    writer.write("Response from Server: pong");
+                                    writer.flush();
+                                }
                             }
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
-                        if (client.getSocket().isClosed()) {
-                            client.getSocket().close();
-                            this.clients.remove(clientID, client);
-                            this.onDisconnect.accept(client);
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                    });
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

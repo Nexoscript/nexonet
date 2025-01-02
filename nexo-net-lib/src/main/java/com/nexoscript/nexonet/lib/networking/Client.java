@@ -4,12 +4,11 @@ import com.nexoscript.nexonet.api.networking.IClient;
 import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.api.utils.BiConsumer;
 import com.nexoscript.nexonet.lib.NexoNetLib;
+import com.nexoscript.nexonet.lib.defpacket.DataPacket;
 import com.nexoscript.nexonet.lib.defpacket.auth.AuthPacket;
 import com.nexoscript.nexonet.lib.defpacket.auth.AuthPacketResponse;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -48,12 +47,11 @@ public class Client extends Thread implements IClient {
             while (isRunning) {
                 try {
                     if(this.socket.isConnected() && !this.socket.isClosed()) {
-                        NexoNetLib.getInstance().getPacketManager().serialize(this.socket.getOutputStream(), new AuthPacket("AUTH", this.id));
-                        System.out.println("Test READING!");
+                        //NexoNetLib.getInstance().getPacketManager().serialize(this.socket.getOutputStream(), new AuthPacket("AUTH", this.id));
                         this.inputStream = this.socket.getInputStream();
                         this.outputStream = this.socket.getOutputStream();
                         if (this.inputStream.available() > 0) {
-                            Packet packet = NexoNetLib.getInstance().getPacketManager().deserialize(this.inputStream, Packet.class);
+                            /*Packet packet = NexoNetLib.getInstance().getPacketManager().deserialize(this.inputStream, Packet.class);
                             if (packet instanceof AuthPacketResponse response) {
                                 if (response.isSuccess()) {
                                     setAuth(true);
@@ -64,8 +62,24 @@ public class Client extends Thread implements IClient {
                             }
                             if (isAuth()) {
                                 this.onReceive.accept(this, packet);
+                            }*/
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+                            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+                            writer.write("Message from Client: ping");
+                            writer.flush();
+                            String line;
+                            if ((line = reader.readLine()) != null) {
+                                System.out.println("[Client] -> " + line);
+                                this.onReceive.accept(this, new DataPacket("DATA", line));
+                                if(line.equalsIgnoreCase("pong")) {
+                                    this.onSend.accept(this, new DataPacket("DATA", "Response from Client: " + line));
+                                    writer.write("Response from Client: ping");
+                                    writer.flush();
+                                }
                             }
                         }
+                    } else {
+                        System.out.println("Not connected");
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);

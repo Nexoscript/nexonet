@@ -17,12 +17,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nexoscript.nexonet.api</groupId>
+            <groupId>com.nexoscript</groupId>
             <artifactId>nexo-net-api</artifactId>
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.nexoscript.nexonet.lib</groupId>
+            <groupId>com.nexoscript</groupId>
             <artifactId>nexo-net-lib</artifactId>
             <version>1.0</version>
         </dependency>

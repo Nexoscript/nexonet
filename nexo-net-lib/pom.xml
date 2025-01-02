@@ -16,7 +16,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nexoscript.nexonet.api</groupId>
+            <groupId>com.nexoscript</groupId>
             <artifactId>nexo-net-api</artifactId>
             <version>1.0</version>
         </dependency>
