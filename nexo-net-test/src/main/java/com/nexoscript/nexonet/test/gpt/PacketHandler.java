@@ -34,5 +34,3 @@ public class PacketHandler {
         throw new RuntimeException("Unknown packet type: " + type);
     }
 }
-
-

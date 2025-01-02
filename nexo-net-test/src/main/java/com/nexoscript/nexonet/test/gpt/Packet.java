@@ -30,4 +30,3 @@ public abstract class Packet<T> {
         return data;
     }
 }
-

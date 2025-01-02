@@ -24,9 +24,9 @@ public class Client {
         final int SERVER_PORT = 12345;
 
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> send(writer, new DisconnectPacket(0))));
             System.out.println("Verbunden mit dem Server.");
@@ -36,13 +36,12 @@ public class Client {
                 System.out.print("Nachricht an Server: ");
                 userInput = consoleReader.readLine();
 
-
-                if(userInput.startsWith("message")) {
+                if (userInput.startsWith("message")) {
                     System.out.println("Client: Sende DatenPacket!");
                     send(writer, new DataPacket(userInput.split(":")[1]));
                 }
 
-                if(userInput.equals("auth")) {
+                if (userInput.equals("auth")) {
                     System.out.println("Client: Sende Auth Packet!");
                     send(writer, new AuthPacket(UUID.randomUUID().toString()));
                 }
@@ -56,10 +55,10 @@ public class Client {
                 String serverResponse = reader.readLine();
                 System.out.println(serverResponse);
                 Packet<?> packet = packetManager.deserialize(serverResponse);
-                if(packet instanceof DataPacket dataPacket) {
+                if (packet instanceof DataPacket dataPacket) {
                     System.out.println(dataPacket.getString());
                 }
-                if(packet instanceof AuthResponsePacket authResponsePacket) {
+                if (packet instanceof AuthResponsePacket authResponsePacket) {
                     if (authResponsePacket.isSuccess()) {
                         this.id = authResponsePacket.getId();
                     } else {
@@ -86,5 +85,3 @@ public class Client {
         new Client();
     }
 }
-
-

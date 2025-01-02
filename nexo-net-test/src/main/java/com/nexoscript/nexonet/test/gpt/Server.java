@@ -80,8 +80,7 @@ class ClientHandler implements Runnable {
                 InputStream input = clientSocket.getInputStream();
                 OutputStream output = clientSocket.getOutputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                PrintWriter writer = new PrintWriter(output, true)
-        ) {
+                PrintWriter writer = new PrintWriter(output, true)) {
             String clientMessage;
             while ((clientMessage = reader.readLine()) != null) {
                 System.out.println(clientMessage);
@@ -106,7 +105,7 @@ class ClientHandler implements Runnable {
                         boolean isFinished = false;
                         String generatedId = "";
                         while (!isFinished) {
-                            if(!generatedId.isEmpty()) {
+                            if (!generatedId.isEmpty()) {
                                 if (clientHandler.getId().equalsIgnoreCase(generatedId)) {
                                     generatedId = UUID.randomUUID().toString();
                                 } else {
@@ -147,5 +146,3 @@ class ClientHandler implements Runnable {
         writer.flush();
     }
 }
-
-
