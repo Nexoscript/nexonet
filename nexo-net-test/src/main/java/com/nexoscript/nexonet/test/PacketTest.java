@@ -1,13 +1,12 @@
 package com.nexoscript.nexonet.test;
 
-import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.lib.NexoNetLib;
 import com.nexoscript.nexonet.lib.defpacket.auth.AuthPacket;
 
 import java.io.*;
 
 public class PacketTest {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) {
         NexoNetLib lib = new NexoNetLib();
 
         ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();

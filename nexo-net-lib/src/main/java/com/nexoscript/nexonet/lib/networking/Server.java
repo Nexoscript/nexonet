@@ -49,6 +49,10 @@ public class Server extends Thread implements IServer {
             try {
                 System.out.println(this.serverSocket.accept().toString());
                 var tempClient = new Client("", this.serverSocket.accept());
+                if (tempClient.getInputStream() == null) {
+                    System.out.println("NULL INPUT STREAM");
+                    continue;
+                }
                 if (tempClient.getInputStream().available() > 0) {
                     Packet packet = NexoNetLib.getInstance().getPacketManager().deserialize(tempClient.getInputStream(), Packet.class);
                     System.out.println("DESEARLIZE PACKET");
