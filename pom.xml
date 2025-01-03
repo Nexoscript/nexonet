@@ -8,6 +8,8 @@
     <artifactId>nexo-net</artifactId>
     <version>1.0</version>
 
+    <packaging>pom</packaging>
+
     <modules>
         <module>nexo-net-api</module>
         <module>nexo-net-client</module>
