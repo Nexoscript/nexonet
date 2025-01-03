@@ -1,1 +1,0 @@
-package com.nexoscript.nexonet.lib.defpacket;

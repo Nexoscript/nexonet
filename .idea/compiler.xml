@@ -6,10 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="nexo-net-server" />
+        <module name="nexo-net-client" />
         <module name="nexo-net-api" />
-        <module name="nexo-net-test" />
-        <module name="nexo-net-lib" />
+        <module name="nexo-net-packet" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="nexo-net-lib" target="21" />
+      <module name="nexo-net-test" target="21" />
+    </bytecodeTargetLevel>
   </component>
 </project>

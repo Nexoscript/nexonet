@@ -5,12 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.nexoscript</groupId>
-    <artifactId>nexo-net-api</artifactId>
+    <artifactId>nexo-net-server</artifactId>
     <version>1.0</version>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -24,7 +22,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.nexoscript.nexonet.api.NexoNetApi</mainClass>
+                            <mainClass>com.nexoscript.nexonet.server.</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Created-By>ezTxmMC &amp; DragonRex</Created-By>
@@ -46,9 +44,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.11.0</version>
+            <groupId>com.nexoscript</groupId>
+            <artifactId>nexo-net-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nexoscript</groupId>
+            <artifactId>nexo-net-packet</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 
