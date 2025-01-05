@@ -2,12 +2,15 @@ package com.nexoscript.nexonet.packet.impl;
 
 import com.nexoscript.nexonet.packet.Packet;
 
-public class DataPacket extends Packet<DataPacket> {
+public class DataPacket extends Packet {
     private String data;
+
+    public DataPacket() {
+        super("DATA");
+    }
 
     public DataPacket(String data) {
         super("DATA");
-        setData(this);
         this.data = data;
     }
 

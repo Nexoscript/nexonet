@@ -1,6 +1,5 @@
 package com.nexoscript.nexonet.api.networking;
 
-import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.api.utils.BiConsumer;
 
 import java.net.Inet4Address;

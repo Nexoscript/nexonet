@@ -2,12 +2,15 @@ package com.nexoscript.nexonet.packet.impl;
 
 import com.nexoscript.nexonet.packet.Packet;
 
-public class DisconnectPacket extends Packet<DisconnectPacket> {
+public class DisconnectPacket extends Packet {
     private int code;
+
+    public DisconnectPacket() {
+        super("DISCONNECT");
+    }
 
     public DisconnectPacket(int code) {
         super("DISCONNECT");
-        setData(this);
         this.code = code;
     }
 

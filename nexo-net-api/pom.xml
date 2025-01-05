@@ -46,9 +46,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.11.0</version>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20241224</version>
         </dependency>
     </dependencies>
 
