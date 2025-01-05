@@ -1,30 +1,37 @@
 package com.nexoscript.nexonet.api.networking;
 
+import com.nexoscript.nexonet.api.events.client.ClientConnectEvent;
+import com.nexoscript.nexonet.api.events.client.ClientDisconnectEvent;
+import com.nexoscript.nexonet.api.events.client.ClientReceivedEvent;
+import com.nexoscript.nexonet.api.events.client.ClientSendEvent;
+import com.nexoscript.nexonet.api.events.server.ServerReceivedEvent;
+import com.nexoscript.nexonet.api.events.server.ServerSendEvent;
+import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.api.utils.BiConsumer;
+import com.nexoscript.nexonet.logger.NexonetLogger;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Inet4Address;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.function.Consumer;
 
 public interface IClient {
     String getID();
     void setID(String id);
-    Thread getThread();
     boolean isRunning();
     Socket getSocket();
     void disconnect();
     int getPort();
-    Inet4Address getIpAddress();
-    void connect(Inet4Address address, int port);
-    void onConnect(Consumer<IClient> onConnect);
-    void onDisconnect(Consumer<IClient> onDisconnect);
-    void onSend(BiConsumer<IClient, Packet> onSend);
-    void onReceive(BiConsumer<IClient, Packet> onReceive);
+    String getHostname();
+    void connect(String address, int port);
     void send(Packet packet);
-    OutputStream getOutputStream();
-    InputStream getInputStream();
     boolean isAuth();
     void setAuth(boolean auth);
+    void onClientConnect(ClientConnectEvent event);
+    void onClientDisconnect(ClientDisconnectEvent event);
+    void onClientReceived(ClientReceivedEvent event);
+    void onClientSend(ClientSendEvent event);
+    NexonetLogger getLogger();
 }

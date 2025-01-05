@@ -1,12 +1,14 @@
 package com.nexoscript.nexonet.packet;
 
+import com.nexoscript.nexonet.api.packet.IPacketManager;
+import com.nexoscript.nexonet.api.packet.Packet;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PacketManager {
+public class PacketManager implements IPacketManager {
     private static final Map<String, Class<? extends Packet>> packetRegistry = new HashMap<>();
 
     public static void registerPacketType(String type, Class<? extends Packet> clazz) {

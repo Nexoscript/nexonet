@@ -1,4 +1,4 @@
-package com.nexoscript.nexonet.packet;
+package com.nexoscript.nexonet.api.packet;
 
 public abstract class Packet {
     private String type;

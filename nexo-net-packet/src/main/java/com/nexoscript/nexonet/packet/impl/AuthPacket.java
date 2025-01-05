@@ -1,6 +1,6 @@
 package com.nexoscript.nexonet.packet.impl;
 
-import com.nexoscript.nexonet.packet.Packet;
+import com.nexoscript.nexonet.api.packet.Packet;
 
 public class AuthPacket extends Packet {
     private String id;

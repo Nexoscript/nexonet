@@ -1,8 +1,13 @@
 package com.nexoscript.nexonet.client;
 
+import com.nexoscript.nexonet.api.events.client.ClientConnectEvent;
+import com.nexoscript.nexonet.api.events.client.ClientDisconnectEvent;
+import com.nexoscript.nexonet.api.events.client.ClientReceivedEvent;
+import com.nexoscript.nexonet.api.events.client.ClientSendEvent;
+import com.nexoscript.nexonet.api.networking.IClient;
 import com.nexoscript.nexonet.logger.LoggingType;
 import com.nexoscript.nexonet.logger.NexonetLogger;
-import com.nexoscript.nexonet.packet.Packet;
+import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
@@ -10,18 +15,27 @@ import com.nexoscript.nexonet.packet.impl.DataPacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.UUID;
 
-public class Client {
+public class Client implements IClient {
     private boolean isAuth;
     private boolean logging;
     private NexonetLogger logger;
     private String id;
+    private boolean isRunning = false;
+    private Socket socket;
+    private BufferedReader reader;
+    private PrintWriter writer;
+    private String hostname;
+    private int port;
+    private ClientConnectEvent clientConnectEvent;
+    private ClientDisconnectEvent clientDisconnectEvent;
+    private ClientReceivedEvent clientReceivedEvent;
+    private ClientSendEvent clientSendEvent;
 
     public Client() {
         this.initialize(false);
@@ -38,45 +52,28 @@ public class Client {
         PacketManager.registerPacketType("AUTH", AuthPacket.class);
         PacketManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
         PacketManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
+        this.clientConnectEvent = (client) -> {};
+        this.clientDisconnectEvent = (client) -> {};
+        this.clientReceivedEvent = (client, packet) -> {};
+        this.clientSendEvent = (client, packet) -> {};
     }
 
-    public void connect() {
-        final String SERVER_ADDRESS = "localhost";
-        final int SERVER_PORT = 12345;
+    @Override
+    public void connect(String hostname, int port) {
+        this.hostname = hostname;
+        this.port = port;
         this.logger.log(LoggingType.INFO, "Connecting to server...");
-        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    send(writer, new DisconnectPacket(0));
-                    socket.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }));
+        try  {
+            this.socket = new Socket(this.hostname, this.port);
+            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.writer = new PrintWriter(socket.getOutputStream(), true);
+            Runtime.getRuntime().addShutdownHook(new Thread(this::disconnect));
             this.logger.log(LoggingType.INFO, "Connected to server");
-            String userInput;
-            while (true) {
-                this.logger.log(LoggingType.INFO, "Input: ", false);
-                userInput = consoleReader.readLine();
-                if (userInput.startsWith("message")) {
-                    if (!isAuth) {
-                        this.logger.log(LoggingType.INFO, "You need to authenticate you with the 'auth' command first.");
-                        continue;
-                    }
-                    this.logger.log(LoggingType.INFO, "Send data packet to server.");
-                    send(writer, new DataPacket(userInput.split(":")[1]));
-                }
-                if (userInput.equals("auth")) {
+            this.isRunning = true;
+            while (isRunning) {
+                if(!isAuth) {
                     this.logger.log(LoggingType.INFO, "Send auth packet to server.");
-                    send(writer, new AuthPacket(UUID.randomUUID().toString()));
-                }
-                if (userInput.equalsIgnoreCase("exit")) {
-                    this.logger.log(LoggingType.INFO, "Connection closed.");
-                    send(writer, new DisconnectPacket(0));
-                    break;
+                    send(new AuthPacket(UUID.randomUUID().toString()));
                 }
                 String serverResponse;
                 if(reader.read() > 0) {
@@ -84,16 +81,17 @@ public class Client {
                         String modifiedString = "{" + serverResponse;
                         System.out.println(modifiedString);
                         Packet packet = PacketManager.fromJson(new JSONObject(modifiedString));
-                        if (packet instanceof DataPacket dataPacket) {
-                            System.out.println(dataPacket.getString());
+                        if(this.isAuth) {
+                            this.clientReceivedEvent.onClientReceived(this, packet);
                         }
                         if (packet instanceof AuthResponsePacket authResponsePacket) {
                             if (authResponsePacket.isSuccess()) {
                                 this.id = authResponsePacket.getId();
                                 this.isAuth = true;
+                                this.clientConnectEvent.onClientConnect(this);
                                 continue;
                             }
-                            send(writer, new AuthPacket(UUID.randomUUID().toString()));
+                            send(new AuthPacket(UUID.randomUUID().toString()));
                             this.logger.log(LoggingType.INFO, "Send auth packet to server.");
                         }
                     }
@@ -104,12 +102,87 @@ public class Client {
         }
     }
 
-    public void send(PrintWriter writer, Packet packet) {
+    @Override
+    public void send(Packet packet) {
         writer.println(PacketManager.toJson(packet));
         writer.flush();
+        this.clientSendEvent.onClientSend(this, packet);
     }
 
+    @Override
     public NexonetLogger getLogger() {
         return logger;
+    }
+
+    @Override
+    public String getID() {
+        return this.id;
+    }
+
+    @Override
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.isRunning;
+    }
+
+    @Override
+    public Socket getSocket() {
+        return this.socket;
+    }
+
+    @Override
+    public void disconnect() {
+        try {
+            this.logger.log(LoggingType.INFO, "Client Try to Disconnect!");
+            send(new DisconnectPacket(0));
+            this.clientDisconnectEvent.onClientDisconnect(this);
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int getPort() {
+        return this.port;
+    }
+
+    @Override
+    public String getHostname() {
+        return this.hostname;
+    }
+
+    @Override
+    public boolean isAuth() {
+        return this.isAuth;
+    }
+
+    @Override
+    public void setAuth(boolean auth) {
+        this.isAuth = auth;
+    }
+
+    @Override
+    public void onClientConnect(ClientConnectEvent event) {
+        this.clientConnectEvent = event;
+    }
+
+    @Override
+    public void onClientDisconnect(ClientDisconnectEvent event) {
+        this.clientDisconnectEvent = event;
+    }
+
+    @Override
+    public void onClientReceived(ClientReceivedEvent event) {
+        this.clientReceivedEvent = event;
+    }
+
+    @Override
+    public void onClientSend(ClientSendEvent event) {
+        this.clientSendEvent = event;
     }
 }

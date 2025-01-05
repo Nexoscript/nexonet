@@ -1,7 +1,10 @@
 package com.nexoscript.nexonet.server;
 
+import com.nexoscript.nexonet.api.networking.IClient;
+import com.nexoscript.nexonet.api.networking.IClientHandler;
+import com.nexoscript.nexonet.api.networking.IServer;
 import com.nexoscript.nexonet.logger.LoggingType;
-import com.nexoscript.nexonet.packet.Packet;
+import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
@@ -11,12 +14,9 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class ClientHandler implements Runnable {
-    private final Server server;
+public class ClientHandler implements Runnable, IClientHandler {
+    private final IServer server;
     private final Socket clientSocket;
     private String id;
     private boolean isAuth = false;
@@ -28,12 +28,29 @@ public class ClientHandler implements Runnable {
         this.server = server;
     }
 
+    @Override
     public String getId() {
-        return id;
+        return this.id;
     }
 
+    @Override
     public Socket getClientSocket() {
-        return clientSocket;
+        return this.clientSocket;
+    }
+
+    @Override
+    public boolean isAuth() {
+        return this.isAuth;
+    }
+
+    @Override
+    public void setAuth(boolean auth) {
+        this.isAuth = auth;
+    }
+
+    @Override
+    public IServer getServer() {
+        return this.server;
     }
 
     @Override
@@ -41,34 +58,33 @@ public class ClientHandler implements Runnable {
         try {
                 InputStream input = clientSocket.getInputStream();
                 OutputStream output = clientSocket.getOutputStream();
-                reader = new BufferedReader(new InputStreamReader(input));
-                writer = new PrintWriter(output, true);
+                this.reader = new BufferedReader(new InputStreamReader(input));
+                this.writer = new PrintWriter(output, true);
             String clientMessage;
             if(this.clientSocket.isConnected()) {
                 while ((clientMessage = reader.readLine()) != null) {
                     System.out.println(clientMessage);
                     Packet packet = PacketManager.fromJson(new JSONObject(clientMessage));
-                    if (packet instanceof DataPacket dataPacket) {
-                        if (isAuth) {
-                            this.server.getLogger().log(LoggingType.INFO, "Client response: " + dataPacket.getString());
-                            send(new DataPacket("Server: " + dataPacket.getString().toUpperCase()));
-                            continue;
-                        }
-                        send(new DataPacket("Need to send auth packet first"));
-                        continue;
-                    }
                     if (packet instanceof DisconnectPacket disconnectPacket) {
                         this.server.getLogger().log(LoggingType.INFO, "Client disconnected. Code: " + disconnectPacket.getCode());
                         this.server.getClients().remove(this);
                         isAuth = false;
+                        this.server.getClientDisconnectEvent().onClientDisconnect(this);
                         break;
                     }
-                    if (packet instanceof AuthPacket authPacket) {
-                        this.id = authPacket.getId();
-                        this.isAuth = true;
-                        this.server.getClients().add(this);
-                        send(new AuthResponsePacket(true, this.id));
+                    if (!isAuth) {
+                        if (packet instanceof AuthPacket authPacket) {
+                            this.id = authPacket.getId();
+                            this.isAuth = true;
+                            this.server.getClients().add(this);
+                            this.server.sendToClient(this.id, new AuthResponsePacket(true, this.id));
+                            this.server.getClientConnectEvent().onClientConnect(this);
+                            continue;
+                        }
+                        this.server.sendToClient(this.id, new AuthResponsePacket(false, this.id));
+                        continue;
                     }
+                    this.server.getServerReceivedEvent().onServerReceived(this, packet);
                 }
             }
         } catch (IOException e) {
@@ -82,8 +98,13 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    void send(Packet packet) {
-        writer.println(PacketManager.toJson(packet));
-        writer.flush();
+    @Override
+    public BufferedReader getReader() {
+        return this.reader;
+    }
+
+    @Override
+    public PrintWriter getWriter() {
+        return this.writer;
     }
 }

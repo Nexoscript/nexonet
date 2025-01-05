@@ -1,21 +1,32 @@
 package com.nexoscript.nexonet.api.networking;
 
-import com.nexoscript.nexonet.api.utils.BiConsumer;
+import com.nexoscript.nexonet.api.events.server.ServerClientConnectEvent;
+import com.nexoscript.nexonet.api.events.server.ServerClientDisconnectEvent;
+import com.nexoscript.nexonet.api.events.server.ServerReceivedEvent;
+import com.nexoscript.nexonet.api.events.server.ServerSendEvent;
+import com.nexoscript.nexonet.api.packet.Packet;
+import com.nexoscript.nexonet.logger.NexonetLogger;
 
-import java.net.Inet4Address;
-import java.util.function.Consumer;
+import java.net.InetSocketAddress;
+import java.util.List;
 
 public interface IServer {
-    String getID();
-    Thread getThread();
     boolean isRunning();
     int getPort();
-    Inet4Address getIpAddress();
-    void listen(int port);
-    void onConnect(Consumer<IClient> onConnect);
-    void onDisconnect(Consumer<IClient> onDisconnect);
-    void onSend(BiConsumer<IClient, Packet> onSend);
-    void onReceive(BiConsumer<IClient, Packet> onReceive);
+    void setPort(int port);
+    InetSocketAddress getIpAddress();
+    void setIpAddress(InetSocketAddress ipAddress);
+    void start(int port);
+    NexonetLogger getLogger();
+    List<IClientHandler> getClients();
     void sendToClient(String clientID, Packet packet);
     void sendToClients(Packet packet);
+    void onClientConnect(ServerClientConnectEvent event);
+    void onClientDisconnect(ServerClientDisconnectEvent event);
+    void onServerReceived(ServerReceivedEvent event);
+    void onServerSend(ServerSendEvent event);
+    ServerClientConnectEvent getClientConnectEvent();
+    ServerClientDisconnectEvent getClientDisconnectEvent();
+    ServerReceivedEvent getServerReceivedEvent();
+    ServerSendEvent getServerSendEvent();
 }
