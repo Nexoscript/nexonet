@@ -32,12 +32,10 @@ public class PacketManager {
         try {
             String type = json.getString("type");
             Class<? extends Packet> clazz = packetRegistry.get(type);
-
             if (clazz == null) {
-                throw new IllegalArgumentException("Unbekannter Packet-Typ: " + type);
+                throw new IllegalArgumentException("Unknown packet type: " + type);
             }
             Packet packet = clazz.getDeclaredConstructor().newInstance();
-
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
@@ -46,7 +44,6 @@ public class PacketManager {
                     field.set(packet, value);
                 }
             }
-
             return packet;
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.nexoscript.nexonet.server;
 
+import com.nexoscript.nexonet.logger.LoggingType;
 import com.nexoscript.nexonet.packet.Packet;
 import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
@@ -49,15 +50,15 @@ public class ClientHandler implements Runnable {
                     Packet packet = PacketManager.fromJson(new JSONObject(clientMessage));
                     if (packet instanceof DataPacket dataPacket) {
                         if (isAuth) {
-                            System.out.println("Empfangen von Client: " + dataPacket.getString());
+                            this.server.getLogger().log(LoggingType.INFO, "Client response: " + dataPacket.getString());
                             send(new DataPacket("Server: " + dataPacket.getString().toUpperCase()));
                             continue;
                         }
-                        send(new DataPacket("First you must Authenticate you with command auth"));
+                        send(new DataPacket("Need to send auth packet first"));
                         continue;
                     }
                     if (packet instanceof DisconnectPacket disconnectPacket) {
-                        System.out.println("Client hat die Verbindung beendet. Code: " + disconnectPacket.getCode());
+                        this.server.getLogger().log(LoggingType.INFO, "Client disconnected. Code: " + disconnectPacket.getCode());
                         this.server.getClients().remove(this);
                         isAuth = false;
                         break;

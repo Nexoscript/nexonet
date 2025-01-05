@@ -1,5 +1,7 @@
 package com.nexoscript.nexonet.client;
 
+import com.nexoscript.nexonet.logger.LoggingType;
+import com.nexoscript.nexonet.logger.NexonetLogger;
 import com.nexoscript.nexonet.packet.Packet;
 import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
@@ -8,15 +10,30 @@ import com.nexoscript.nexonet.packet.impl.DataPacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.UUID;
 
 public class Client {
-    private boolean isAuth = false;
+    private boolean isAuth;
+    private boolean logging;
+    private NexonetLogger logger;
     private String id;
 
     public Client() {
+        this.initialize(false);
+    }
+
+    public Client(boolean logging) {
+        this.initialize(logging);
+    }
+
+    private void initialize(boolean logging) {
+        this.logging = logging;
+        this.logger = new NexonetLogger(this.logging);
         PacketManager.registerPacketType("DATA", DataPacket.class);
         PacketManager.registerPacketType("AUTH", AuthPacket.class);
         PacketManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
@@ -26,6 +43,7 @@ public class Client {
     public void connect() {
         final String SERVER_ADDRESS = "localhost";
         final int SERVER_PORT = 12345;
+        this.logger.log(LoggingType.INFO, "Connecting to server...");
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
@@ -38,25 +56,25 @@ public class Client {
                     throw new RuntimeException(e);
                 }
             }));
-            System.out.println("Verbunden mit dem Server.");
+            this.logger.log(LoggingType.INFO, "Connected to server");
             String userInput;
             while (true) {
-                System.out.print("Nachricht an Server: ");
+                this.logger.log(LoggingType.INFO, "Input: ", false);
                 userInput = consoleReader.readLine();
                 if (userInput.startsWith("message")) {
                     if (!isAuth) {
-                        System.out.println("You need to authenticate you with the command 'auth'");
+                        this.logger.log(LoggingType.INFO, "You need to authenticate you with the 'auth' command first.");
                         continue;
                     }
-                    System.out.println("Client: Sende DatenPacket!");
+                    this.logger.log(LoggingType.INFO, "Send data packet to server.");
                     send(writer, new DataPacket(userInput.split(":")[1]));
                 }
                 if (userInput.equals("auth")) {
-                    System.out.println("Client: Send Auth Packet!");
+                    this.logger.log(LoggingType.INFO, "Send auth packet to server.");
                     send(writer, new AuthPacket(UUID.randomUUID().toString()));
                 }
                 if (userInput.equalsIgnoreCase("exit")) {
-                    System.out.println("Verbindung beendet.");
+                    this.logger.log(LoggingType.INFO, "Connection closed.");
                     send(writer, new DisconnectPacket(0));
                     break;
                 }
@@ -66,7 +84,6 @@ public class Client {
                         String modifiedString = "{" + serverResponse;
                         System.out.println(modifiedString);
                         Packet packet = PacketManager.fromJson(new JSONObject(modifiedString));
-
                         if (packet instanceof DataPacket dataPacket) {
                             System.out.println(dataPacket.getString());
                         }
@@ -74,10 +91,10 @@ public class Client {
                             if (authResponsePacket.isSuccess()) {
                                 this.id = authResponsePacket.getId();
                                 this.isAuth = true;
-                            } else {
-                                send(writer, new AuthPacket(UUID.randomUUID().toString()));
-                                System.out.println("Client: Send Auth Packet");
+                                continue;
                             }
+                            send(writer, new AuthPacket(UUID.randomUUID().toString()));
+                            this.logger.log(LoggingType.INFO, "Send auth packet to server.");
                         }
                     }
                 }
@@ -92,8 +109,7 @@ public class Client {
         writer.flush();
     }
 
-    public static void main(String[] args) {
-        Client client = new Client();
-        client.connect();
+    public NexonetLogger getLogger() {
+        return logger;
     }
 }
