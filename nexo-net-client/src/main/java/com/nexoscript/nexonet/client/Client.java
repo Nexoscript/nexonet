@@ -11,13 +11,10 @@ import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
-import com.nexoscript.nexonet.packet.impl.DataPacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.net.Inet4Address;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.UUID;
 
@@ -48,7 +45,6 @@ public class Client implements IClient {
     private void initialize(boolean logging) {
         this.logging = logging;
         this.logger = new NexonetLogger(this.logging);
-        PacketManager.registerPacketType("DATA", DataPacket.class);
         PacketManager.registerPacketType("AUTH", AuthPacket.class);
         PacketManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
         PacketManager.registerPacketType("DISCONNECT", DisconnectPacket.class);

@@ -1,6 +1,5 @@
 package com.nexoscript.nexonet.server;
 
-import com.nexoscript.nexonet.api.networking.IClient;
 import com.nexoscript.nexonet.api.networking.IClientHandler;
 import com.nexoscript.nexonet.api.networking.IServer;
 import com.nexoscript.nexonet.logger.LoggingType;
@@ -8,7 +7,6 @@ import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
-import com.nexoscript.nexonet.packet.impl.DataPacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
 import org.json.JSONObject;
 

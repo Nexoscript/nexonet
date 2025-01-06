@@ -1,7 +1,5 @@
 package com.nexoscript.nexonet.server;
 
-import com.nexoscript.nexonet.api.events.client.ClientConnectEvent;
-import com.nexoscript.nexonet.api.events.client.ClientDisconnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerClientConnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerClientDisconnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerReceivedEvent;
@@ -14,7 +12,6 @@ import com.nexoscript.nexonet.logger.NexonetLogger;
 import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
-import com.nexoscript.nexonet.packet.impl.DataPacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
 
 import java.io.*;
@@ -53,7 +50,6 @@ public class Server implements IServer {
         this.clients = new ArrayList<>();
         this.logging = logging;
         this.logger = new NexonetLogger(this.logging);
-        PacketManager.registerPacketType("DATA", DataPacket.class);
         PacketManager.registerPacketType("AUTH", AuthPacket.class);
         PacketManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
         PacketManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
