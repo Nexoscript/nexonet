@@ -1,11 +1,14 @@
 package com.nexoscript.nexonet.server;
 
+import com.nexoscript.nexonet.api.crypto.CryptoType;
+import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.api.events.server.ServerClientConnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerClientDisconnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerReceivedEvent;
 import com.nexoscript.nexonet.api.events.server.ServerSendEvent;
 import com.nexoscript.nexonet.api.networking.IClientHandler;
 import com.nexoscript.nexonet.api.networking.IServer;
+import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.logger.LoggingType;
 import com.nexoscript.nexonet.logger.NexonetLogger;
@@ -14,9 +17,11 @@ import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
 
+import java.awt.image.ImageProducer;
 import java.io.*;
 import java.net.*;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,27 +37,47 @@ public class Server implements IServer {
     private ServerClientDisconnectEvent clientDisconnectEvent;
     private ServerReceivedEvent serverReceivedEvent;
     private ServerSendEvent serverSendEvent;
+    private IPacketManager packetManager;
 
-    public Server() {
-        this.initialize(false);
+    public Server(boolean useCrypto) {
+        this.logging = false;
+        this.logger = new NexonetLogger(false);
+        if(!useCrypto) {
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+        } else {
+            this.packetManager = new PacketManager(this.logger);
+        }
+        this.initialize();
     }
 
-    public Server(String hostname) {
+    public Server(String hostname, boolean useCrypto) {
         this.hostname = hostname;
-        this.initialize(false);
+        this.logging = false;
+        this.logger = new NexonetLogger(false);
+        if(!useCrypto) {
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+        } else {
+            this.packetManager = new PacketManager(this.logger);
+        }
+        this.initialize();
     }
 
-    public Server(boolean logging) {
-        this.initialize(logging);
-    }
-
-    private void initialize(boolean logging) {
-        this.clients = new ArrayList<>();
+    public Server(boolean logging, boolean useCrypto, String path, CryptoType type, KeySize size) {
         this.logging = logging;
-        this.logger = new NexonetLogger(this.logging);
-        PacketManager.registerPacketType("AUTH", AuthPacket.class);
-        PacketManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
-        PacketManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
+        this.logger = new NexonetLogger(logging);
+        if(!useCrypto) {
+            this.packetManager = new PacketManager(this.logger, path, type, size);
+        } else {
+            this.packetManager = new PacketManager(this.logger);
+        }
+        this.initialize();
+    }
+
+    private void initialize() {
+        this.clients = new ArrayList<>();
+        this.packetManager.registerPacketType("AUTH", AuthPacket.class);
+        this.packetManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
+        this.packetManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
         this.clientConnectEvent = (client) -> {};
         this.clientDisconnectEvent = (client) -> {};
         this.serverReceivedEvent = (client, packet) -> {};
@@ -69,7 +94,7 @@ public class Server implements IServer {
             this.logger.log(LoggingType.INFO, "Waiting for client connections...");
             while (isRunning) {
                 Socket clientSocket = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(clientSocket, this);
+                ClientHandler clientHandler = new ClientHandler(clientSocket, this, this.packetManager);
                 this.logger.log(LoggingType.INFO, "Client connected: " + clientSocket.getInetAddress());
                 new Thread(clientHandler).start();
             }
@@ -92,7 +117,7 @@ public class Server implements IServer {
     public void sendToClient(String clientID, Packet packet) {
         this.getClients().forEach(client -> {
             if(client.getId().equalsIgnoreCase(clientID)) {
-                client.getWriter().println(PacketManager.toJson(packet));
+                client.getWriter().println(this.packetManager.toJson(packet));
                 client.getWriter().flush();
                 this.serverSendEvent.onServerSend(client, packet);
             }
@@ -102,7 +127,7 @@ public class Server implements IServer {
     @Override
     public void sendToClients(Packet packet) {
         this.getClients().forEach(client -> {
-                client.getWriter().println(PacketManager.toJson(packet));
+                client.getWriter().println(this.packetManager.toJson(packet));
                 client.getWriter().flush();
                 this.serverSendEvent.onServerSend(client, packet);
         });

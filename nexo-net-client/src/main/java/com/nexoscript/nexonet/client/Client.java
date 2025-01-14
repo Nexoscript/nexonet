@@ -1,10 +1,13 @@
 package com.nexoscript.nexonet.client;
 
+import com.nexoscript.nexonet.api.crypto.CryptoType;
+import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.api.events.client.ClientConnectEvent;
 import com.nexoscript.nexonet.api.events.client.ClientDisconnectEvent;
 import com.nexoscript.nexonet.api.events.client.ClientReceivedEvent;
 import com.nexoscript.nexonet.api.events.client.ClientSendEvent;
 import com.nexoscript.nexonet.api.networking.IClient;
+import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.logger.LoggingType;
 import com.nexoscript.nexonet.logger.NexonetLogger;
 import com.nexoscript.nexonet.api.packet.Packet;
@@ -33,21 +36,45 @@ public class Client implements IClient {
     private ClientDisconnectEvent clientDisconnectEvent;
     private ClientReceivedEvent clientReceivedEvent;
     private ClientSendEvent clientSendEvent;
+    private IPacketManager packetManager;
 
-    public Client() {
-        this.initialize(false);
+    public Client(boolean useCrypto) {
+        this.logging = false;
+        this.logger = new NexonetLogger(false);
+        if(!useCrypto) {
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+        } else {
+            this.packetManager = new PacketManager(this.logger);
+        }
+        this.initialize();
     }
 
-    public Client(boolean logging) {
-        this.initialize(logging);
-    }
-
-    private void initialize(boolean logging) {
+    public Client(boolean logging, boolean useCrypto) {
         this.logging = logging;
-        this.logger = new NexonetLogger(this.logging);
-        PacketManager.registerPacketType("AUTH", AuthPacket.class);
-        PacketManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
-        PacketManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
+        this.logger = new NexonetLogger(logging);
+        if(!useCrypto) {
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+        } else {
+            this.packetManager = new PacketManager(this.logger);
+        }
+        this.initialize();
+    }
+
+    public Client(boolean logging, boolean useCrypto, String path, CryptoType type, KeySize size) {
+        this.logging = false;
+        this.logger = new NexonetLogger(false);
+        if(!useCrypto) {
+            this.packetManager = new PacketManager(this.logger, path, type, size);
+        } else {
+            this.packetManager = new PacketManager(this.logger);
+        }
+        this.initialize();
+    }
+
+    private void initialize() {
+        this.packetManager.registerPacketType("AUTH", AuthPacket.class);
+        this.packetManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
+        this.packetManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
         this.clientConnectEvent = (client) -> {};
         this.clientDisconnectEvent = (client) -> {};
         this.clientReceivedEvent = (client, packet) -> {};
@@ -76,7 +103,7 @@ public class Client implements IClient {
                     if ((serverResponse = reader.readLine()) != null) {
                         String modifiedString = "{" + serverResponse;
                         System.out.println(modifiedString);
-                        Packet packet = PacketManager.fromJson(new JSONObject(modifiedString));
+                        Packet packet = this.packetManager.fromJson(modifiedString);
                         if(this.isAuth) {
                             this.clientReceivedEvent.onClientReceived(this, packet);
                         }
@@ -100,7 +127,7 @@ public class Client implements IClient {
 
     @Override
     public void send(Packet packet) {
-        writer.println(PacketManager.toJson(packet));
+        writer.println(this.packetManager.toJson(packet));
         writer.flush();
         this.clientSendEvent.onClientSend(this, packet);
     }

@@ -1,7 +1,11 @@
 package com.nexoscript.nexonet.packet;
 
+import com.nexoscript.nexonet.api.crypto.CryptoType;
+import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.api.packet.Packet;
+import com.nexoscript.nexonet.logger.NexonetLogger;
+import com.nexoscript.nexonet.packet.crypto.CryptoManager;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
@@ -9,13 +13,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PacketManager implements IPacketManager {
-    private static final Map<String, Class<? extends Packet>> packetRegistry = new HashMap<>();
+    private final Map<String, Class<? extends Packet>> packetRegistry;
+    private final NexonetLogger logger;
+    private final CryptoManager cryptoManager;
+    private boolean useEncryption = true;
 
-    public static void registerPacketType(String type, Class<? extends Packet> clazz) {
-        packetRegistry.put(type, clazz);
+    public PacketManager(NexonetLogger logger, String path, CryptoType type, KeySize size) {
+        this.packetRegistry = new HashMap<>();
+        this.logger = logger;
+        this.cryptoManager = new CryptoManager(this.logger);
+        this.cryptoManager.initCrypto(path, type, size);
     }
 
-    public static JSONObject toJson(Packet packet) {
+    public PacketManager(NexonetLogger logger) {
+        this.packetRegistry = new HashMap<>();
+        this.logger = logger;
+        this.cryptoManager = new CryptoManager(this.logger);
+        this.useEncryption = false;
+    }
+
+    public void registerPacketType(String type, Class<? extends Packet> clazz) {
+        this.packetRegistry.put(type, clazz);
+    }
+
+    public String toJson(Packet packet) {
         JSONObject json = new JSONObject();
         json.put("type", packet.getType());
         Field[] fields = packet.getClass().getDeclaredFields();
@@ -27,13 +48,19 @@ public class PacketManager implements IPacketManager {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        return json;
+        if(useEncryption)
+            return this.cryptoManager.encryptString(json.toString());
+        return json.toString();
     }
 
-    public static Packet fromJson(JSONObject json) {
+    public Packet fromJson(String jsonString) {
         try {
+            String encrytedString = jsonString;
+            if(useEncryption)
+                encrytedString = this.cryptoManager.decryptString(jsonString);
+            JSONObject json = new JSONObject(encrytedString);
             String type = json.getString("type");
-            Class<? extends Packet> clazz = packetRegistry.get(type);
+            Class<? extends Packet> clazz = this.packetRegistry.get(type);
             if (clazz == null) {
                 throw new IllegalArgumentException("Unknown packet type: " + type);
             }

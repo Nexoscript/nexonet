@@ -2,6 +2,7 @@ package com.nexoscript.nexonet.server;
 
 import com.nexoscript.nexonet.api.networking.IClientHandler;
 import com.nexoscript.nexonet.api.networking.IServer;
+import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.logger.LoggingType;
 import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.packet.PacketManager;
@@ -20,10 +21,12 @@ public class ClientHandler implements Runnable, IClientHandler {
     private boolean isAuth = false;
     private BufferedReader reader;
     private PrintWriter writer;
+    private IPacketManager packetManager;
 
-    public ClientHandler(Socket socket, Server server) {
+    public ClientHandler(Socket socket, Server server, IPacketManager packetManager) {
         this.clientSocket = socket;
         this.server = server;
+        this.packetManager = packetManager;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class ClientHandler implements Runnable, IClientHandler {
             if(this.clientSocket.isConnected()) {
                 while ((clientMessage = reader.readLine()) != null) {
                     System.out.println(clientMessage);
-                    Packet packet = PacketManager.fromJson(new JSONObject(clientMessage));
+                    Packet packet =  this.packetManager.fromJson(clientMessage);
                     if (packet instanceof DisconnectPacket disconnectPacket) {
                         this.server.getLogger().log(LoggingType.INFO, "Client disconnected. Code: " + disconnectPacket.getCode());
                         this.server.getClients().remove(this);
