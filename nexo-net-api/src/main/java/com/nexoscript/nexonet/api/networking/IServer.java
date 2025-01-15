@@ -4,6 +4,7 @@ import com.nexoscript.nexonet.api.events.server.ServerClientConnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerClientDisconnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerReceivedEvent;
 import com.nexoscript.nexonet.api.events.server.ServerSendEvent;
+import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.logger.NexonetLogger;
 
@@ -29,4 +30,5 @@ public interface IServer {
     ServerClientDisconnectEvent getClientDisconnectEvent();
     ServerReceivedEvent getServerReceivedEvent();
     ServerSendEvent getServerSendEvent();
+    IPacketManager getPacketManager();
 }

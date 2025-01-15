@@ -1,14 +1,13 @@
 package com.nexoscript;
 
-import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.server.Server;
 import com.nexoscript.packets.MessagePacket;
 
 public class Testserver {
 
     public static void main(String[] args) {
-        PacketManager.registerPacketType("MESSAGE_PACKET", MessagePacket.class);
-        Server server = new Server(false);
+        Server server = new Server(true, true);
+        server.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
         server.onClientConnect(client -> {
             System.out.println("Client connected with ID: " + client.getId());
         });

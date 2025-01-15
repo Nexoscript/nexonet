@@ -48,16 +48,22 @@ public class PacketManager implements IPacketManager {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        if(useEncryption)
-            return this.cryptoManager.encryptString(json.toString());
+        if(useEncryption) {
+            System.out.println("[Crypto Decrypted] : " + json.toString());
+            String s = this.cryptoManager.encryptString(json.toString());
+            System.out.println("[Crypto Encrypted] : " + s);
+            return s;
+        }
         return json.toString();
     }
 
     public Packet fromJson(String jsonString) {
         try {
             String encrytedString = jsonString;
+            System.out.println("[Crypto Encrypted] : " + encrytedString);
             if(useEncryption)
                 encrytedString = this.cryptoManager.decryptString(jsonString);
+            System.out.println("[Crypto Decrypted] : " + encrytedString);
             JSONObject json = new JSONObject(encrytedString);
             String type = json.getString("type");
             Class<? extends Packet> clazz = this.packetRegistry.get(type);

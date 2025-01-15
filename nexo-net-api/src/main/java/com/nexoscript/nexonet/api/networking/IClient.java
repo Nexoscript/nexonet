@@ -6,6 +6,7 @@ import com.nexoscript.nexonet.api.events.client.ClientReceivedEvent;
 import com.nexoscript.nexonet.api.events.client.ClientSendEvent;
 import com.nexoscript.nexonet.api.events.server.ServerReceivedEvent;
 import com.nexoscript.nexonet.api.events.server.ServerSendEvent;
+import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.api.packet.Packet;
 import com.nexoscript.nexonet.api.utils.BiConsumer;
 import com.nexoscript.nexonet.logger.NexonetLogger;
@@ -34,4 +35,5 @@ public interface IClient {
     void onClientReceived(ClientReceivedEvent event);
     void onClientSend(ClientSendEvent event);
     NexonetLogger getLogger();
+    IPacketManager getPacketManager();
 }

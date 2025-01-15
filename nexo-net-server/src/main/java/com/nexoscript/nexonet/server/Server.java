@@ -43,7 +43,7 @@ public class Server implements IServer {
         this.logging = false;
         this.logger = new NexonetLogger(false);
         if(!useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
             this.packetManager = new PacketManager(this.logger);
         }
@@ -55,7 +55,18 @@ public class Server implements IServer {
         this.logging = false;
         this.logger = new NexonetLogger(false);
         if(!useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
+        } else {
+            this.packetManager = new PacketManager(this.logger);
+        }
+        this.initialize();
+    }
+
+    public Server(boolean logging, boolean useCrypto) {
+        this.logging = false;
+        this.logger = new NexonetLogger(false);
+        if(!useCrypto) {
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
             this.packetManager = new PacketManager(this.logger);
         }
@@ -196,5 +207,10 @@ public class Server implements IServer {
     @Override
     public void setIpAddress(InetSocketAddress ipAddress) {
         this.ip = ipAddress;
+    }
+
+    @Override
+    public IPacketManager getPacketManager() {
+        return packetManager;
     }
 }

@@ -42,7 +42,7 @@ public class Client implements IClient {
         this.logging = false;
         this.logger = new NexonetLogger(false);
         if(!useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
             this.packetManager = new PacketManager(this.logger);
         }
@@ -53,7 +53,7 @@ public class Client implements IClient {
         this.logging = logging;
         this.logger = new NexonetLogger(logging);
         if(!useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.RSA, KeySize.KEY_128);
+            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
             this.packetManager = new PacketManager(this.logger);
         }
@@ -207,5 +207,10 @@ public class Client implements IClient {
     @Override
     public void onClientSend(ClientSendEvent event) {
         this.clientSendEvent = event;
+    }
+
+    @Override
+    public IPacketManager getPacketManager() {
+        return packetManager;
     }
 }
