@@ -24,7 +24,7 @@ To use nexo-net in your project, add it as a dependency in your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.nexoscript</groupId>
+    <groupId>com.github.Nexoscript</groupId>
     <artifactId>nexo-net</artifactId>
     <version>VERSION</version>
 </dependency>
