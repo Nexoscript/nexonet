@@ -1,5 +1,0 @@
-com\nexoscript\nexonet\packet\impl\DisconnectPacket.class
-com\nexoscript\nexonet\packet\crypto\CryptoManager.class
-com\nexoscript\nexonet\packet\impl\AuthResponsePacket.class
-com\nexoscript\nexonet\packet\PacketManager.class
-com\nexoscript\nexonet\packet\impl\AuthPacket.class
