@@ -16,17 +16,24 @@ To use nexo-net in your project, add it as a dependency in your `pom.xml`:
 ```xml
 <repositories>
 	<repository>
-	    <id>jitpack.io</id>
-	    <url>https://jitpack.io</url>
+	    <id>eztxm-repo</id>
+	    <url>https://repo.eztxm.de/maven/</url>
 	</repository>
 </repositories>
 ```
 
 ```xml
 <dependency>
-    <groupId>com.github.Nexoscript</groupId>
-    <artifactId>nexo-net</artifactId>
-    <version>VERSION</version>
+    <groupId>com.nexoscript</groupId>
+    <artifactId>nexo-net-client</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+```xml
+<dependency>
+    <groupId>com.nexoscript</groupId>
+    <artifactId>nexo-net-server</artifactId>
+    <version>0.1.0</version>
 </dependency>
 ```
 
