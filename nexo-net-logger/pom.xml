@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.nexoscript</groupId>
         <artifactId>nexo-net</artifactId>
-        <version>1.0</version>
+        <version>0.1.0</version>
     </parent>
 
     <artifactId>nexo-net-logger</artifactId>
