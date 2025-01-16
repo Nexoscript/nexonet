@@ -49,7 +49,7 @@ public class PacketManager implements IPacketManager {
             e.printStackTrace();
         }
         if(useEncryption) {
-            System.out.println("[Crypto Decrypted] : " + json.toString());
+            System.out.println("[Crypto Decrypted] : " + json);
             String s = this.cryptoManager.encryptString(json.toString());
             System.out.println("[Crypto Encrypted] : " + s);
             return s;
