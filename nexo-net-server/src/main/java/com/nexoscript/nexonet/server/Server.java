@@ -42,7 +42,7 @@ public class Server implements IServer {
     public Server(boolean useCrypto) {
         this.logging = false;
         this.logger = new NexonetLogger(false);
-        if(!useCrypto) {
+        if(useCrypto) {
             this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
             this.packetManager = new PacketManager(this.logger);
@@ -54,7 +54,7 @@ public class Server implements IServer {
         this.hostname = hostname;
         this.logging = false;
         this.logger = new NexonetLogger(false);
-        if(!useCrypto) {
+        if(useCrypto) {
             this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
             this.packetManager = new PacketManager(this.logger);
@@ -65,7 +65,7 @@ public class Server implements IServer {
     public Server(boolean logging, boolean useCrypto) {
         this.logging = false;
         this.logger = new NexonetLogger(false);
-        if(!useCrypto) {
+        if(useCrypto) {
             this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
             this.packetManager = new PacketManager(this.logger);
@@ -76,7 +76,7 @@ public class Server implements IServer {
     public Server(boolean logging, boolean useCrypto, String path, CryptoType type, KeySize size) {
         this.logging = logging;
         this.logger = new NexonetLogger(logging);
-        if(!useCrypto) {
+        if(useCrypto) {
             this.packetManager = new PacketManager(this.logger, path, type, size);
         } else {
             this.packetManager = new PacketManager(this.logger);
