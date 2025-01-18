@@ -37,8 +37,6 @@ To use nexo-net in your project, add it as a dependency in your `pom.xml`:
 </dependency>
 ```
 
-Version: https://jitpack.io/#Nexoscript/nexo-net
-
 Ensure you are using the latest version by adjusting the version number accordingly.
 
 ## Getting Started
