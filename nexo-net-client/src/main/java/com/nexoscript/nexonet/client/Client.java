@@ -101,9 +101,8 @@ public class Client implements IClient {
                 String serverResponse;
                 if(reader.read() > 0) {
                     if ((serverResponse = reader.readLine()) != null) {
-                        String modifiedString = "{" + serverResponse;
-                        System.out.println(modifiedString);
-                        Packet packet = this.packetManager.fromJson(modifiedString);
+                        System.out.println(serverResponse);
+                        Packet packet = this.packetManager.fromJson(serverResponse);
                         if(this.isAuth) {
                             this.clientReceivedEvent.onClientReceived(this, packet);
                         }

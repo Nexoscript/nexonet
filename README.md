@@ -46,7 +46,7 @@ Here are a few simple examples to help you get started with nexo-net.
 
 ```java
 import com.nexoscript.nexonet.server.Server;
-import com.nexoscript.packets.MessagePacket;
+import packets.com.nexoscript.MessagePacket;
 
 public class Testserver {
 
@@ -84,7 +84,7 @@ This example demonstrates how to create a simple server that listens for incomin
 
 ```java 
 import com.nexoscript.nexonet.client.Client;
-import com.nexoscript.packets.MessagePacket;
+import packets.com.nexoscript.MessagePacket;
 
 public class Testclient {
 

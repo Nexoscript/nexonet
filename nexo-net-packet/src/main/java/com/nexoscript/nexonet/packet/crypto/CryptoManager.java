@@ -58,6 +58,9 @@ public class CryptoManager implements ICryptoManager {
     public String encryptString(String data) {
         try {
             this.logger.log(LoggingType.INFO, "Try to encode String");
+            logger.log(LoggingType.INFO, "Crypto: " + data);
+            data = data.replace('{', '=').replace('}', '+');
+            logger.log(LoggingType.INFO, "Crypto: " + data);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -70,7 +73,12 @@ public class CryptoManager implements ICryptoManager {
         try {
             this.logger.log(LoggingType.INFO, "Try to decode String");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            return new String(cipher.doFinal(Base64.getDecoder().decode(data)));
+            String s = new String(cipher.doFinal(Base64.getDecoder().decode(data)));
+            s = '=' + s;
+            logger.log(LoggingType.INFO, "Crypto: " + s);
+            s = s.replace('=', '{').replace('+', '}');
+            logger.log(LoggingType.INFO, "Crypto: " + s);
+            return s;
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             throw new RuntimeException(e);
         }
