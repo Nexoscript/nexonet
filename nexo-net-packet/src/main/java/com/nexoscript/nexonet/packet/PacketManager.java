@@ -4,6 +4,7 @@ import com.nexoscript.nexonet.api.crypto.CryptoType;
 import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.api.packet.Packet;
+import com.nexoscript.nexonet.logger.LoggingType;
 import com.nexoscript.nexonet.logger.NexonetLogger;
 import com.nexoscript.nexonet.packet.crypto.CryptoManager;
 import org.json.JSONObject;
@@ -49,9 +50,9 @@ public class PacketManager implements IPacketManager {
             e.printStackTrace();
         }
         if(useEncryption) {
-            System.out.println("[Crypto Decrypted] : " + json);
+            this.logger.log(LoggingType.INFO, "[Crypto Decrypted] : " + json);
             String s = this.cryptoManager.encryptString(json.toString());
-            System.out.println("[Crypto Encrypted] : " + s);
+            this.logger.log(LoggingType.INFO, "[Crypto Encrypted] : " + s);
             return s;
         }
         return json.toString();
@@ -60,10 +61,10 @@ public class PacketManager implements IPacketManager {
     public Packet fromJson(String jsonString) {
         try {
             String encrytedString = jsonString;
-            System.out.println("[Crypto Encrypted] : " + encrytedString);
+            this.logger.log(LoggingType.INFO, "[Crypto Encrypted] : " + encrytedString);
             if(useEncryption)
                 encrytedString = this.cryptoManager.decryptString(jsonString);
-            System.out.println("[Crypto Decrypted] : " + encrytedString);
+            this.logger.log(LoggingType.INFO, "[Crypto Decrypted] : " + encrytedString);
             JSONObject json = new JSONObject(encrytedString);
             String type = json.getString("type");
             Class<? extends Packet> clazz = this.packetRegistry.get(type);
