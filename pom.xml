@@ -16,7 +16,6 @@
         <module>nexo-net-logger</module>
         <module>nexo-net-packet</module>
         <module>nexo-net-server</module>
-        <module>nexo-net-test</module>
     </modules>
 
     <properties>
