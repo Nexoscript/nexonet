@@ -74,7 +74,14 @@ public class CryptoManager implements ICryptoManager {
             this.logger.log(LoggingType.INFO, "Try to decode String");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             String s = new String(cipher.doFinal(Base64.getDecoder().decode(data)));
-            s = '=' + s;
+            try {
+                byte[] decoded = cipher.doFinal(Base64.getDecoder().decode(data));
+                logger.log(LoggingType.INFO, "Decoded length: " + decoded.length);
+            } catch (IllegalArgumentException e) {
+                logger.log(LoggingType.ERROR, "Invalid Base64 input: " + data);
+                throw new RuntimeException("Invalid Base64 encoding", e);
+            }
+            //s = '=' + s;
             logger.log(LoggingType.INFO, "Crypto: " + s);
             s = s.replace('=', '{').replace('+', '}');
             logger.log(LoggingType.INFO, "Crypto: " + s);

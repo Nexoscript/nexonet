@@ -63,8 +63,8 @@ public class Server implements IServer {
     }
 
     public Server(boolean logging, boolean useCrypto) {
-        this.logging = false;
-        this.logger = new NexonetLogger(false);
+        this.logging = logging;
+        this.logger = new NexonetLogger(logging);
         if(useCrypto) {
             this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
         } else {
