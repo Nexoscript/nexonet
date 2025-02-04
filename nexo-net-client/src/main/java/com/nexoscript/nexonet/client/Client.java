@@ -79,7 +79,7 @@ public class Client implements IClient {
                 String serverResponse;
                 if(reader.read() > 0) {
                     if ((serverResponse = reader.readLine()) != null) {
-                        System.out.println(serverResponse);
+                        serverResponse = "{" + serverResponse;
                         Packet packet = this.packetManager.fromJson(serverResponse);
                         if(this.isAuth) {
                             this.clientReceivedEvent.onClientReceived(this, packet);

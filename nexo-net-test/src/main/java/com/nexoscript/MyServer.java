@@ -23,12 +23,7 @@ public class MyServer {
                 }
             }
         });
-        server.onServerSend((client, packet) -> {
-            System.out.println("Server send from client with ID: " + client.getId());
-            if(packet instanceof MessagePacket dataPacket) {
-                System.out.println(dataPacket);
-            }
-        });
+        server.onServerSend((client, packet) -> {});
         server.start(1234);
     }
 }

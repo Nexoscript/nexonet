@@ -44,7 +44,7 @@ public class PacketManager implements IPacketManager {
 
     public Packet fromJson(String jsonString) {
         try {
-            JSONObject json = new JSONObject("{" + jsonString);
+            JSONObject json = new JSONObject(jsonString);
             String type = json.getString("type");
             Class<? extends Packet> clazz = this.packetRegistry.get(type);
             if (clazz == null) {

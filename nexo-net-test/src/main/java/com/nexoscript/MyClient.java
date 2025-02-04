@@ -21,12 +21,7 @@ public class MyClient {
                 System.out.println(messagePacket);
             }
         });
-        client.onClientSend((iClient, packet) -> {
-            System.out.println("Client with ID: " + iClient.getID() + " send!");
-            if(packet instanceof MessagePacket messagePacket) {
-                System.out.println(messagePacket);
-            }
-        });
+        client.onClientSend((iClient, packet) -> {});
         client.connect("127.0.0.1", 1234);
     }
 }
