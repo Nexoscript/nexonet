@@ -39,48 +39,25 @@ public class Server implements IServer {
     private ServerSendEvent serverSendEvent;
     private IPacketManager packetManager;
 
-    public Server(boolean useCrypto) {
+    public Server() {
         this.logging = false;
         this.logger = new NexonetLogger(false);
-        if(useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
-        } else {
-            this.packetManager = new PacketManager(this.logger);
-        }
+        this.packetManager = new PacketManager();
         this.initialize();
     }
 
-    public Server(String hostname, boolean useCrypto) {
+    public Server(String hostname) {
         this.hostname = hostname;
         this.logging = false;
         this.logger = new NexonetLogger(false);
-        if(useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
-        } else {
-            this.packetManager = new PacketManager(this.logger);
-        }
+        this.packetManager = new PacketManager();
         this.initialize();
     }
 
-    public Server(boolean logging, boolean useCrypto) {
+    public Server(boolean logging) {
         this.logging = logging;
         this.logger = new NexonetLogger(logging);
-        if(useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
-        } else {
-            this.packetManager = new PacketManager(this.logger);
-        }
-        this.initialize();
-    }
-
-    public Server(boolean logging, boolean useCrypto, String path, CryptoType type, KeySize size) {
-        this.logging = logging;
-        this.logger = new NexonetLogger(logging);
-        if(useCrypto) {
-            this.packetManager = new PacketManager(this.logger, path, type, size);
-        } else {
-            this.packetManager = new PacketManager(this.logger);
-        }
+        this.packetManager = new PacketManager(this.logger);
         this.initialize();
     }
 

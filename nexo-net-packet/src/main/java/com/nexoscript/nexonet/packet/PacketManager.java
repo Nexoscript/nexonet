@@ -1,12 +1,8 @@
 package com.nexoscript.nexonet.packet;
 
-import com.nexoscript.nexonet.api.crypto.CryptoType;
-import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.api.packet.IPacketManager;
 import com.nexoscript.nexonet.api.packet.Packet;
-import com.nexoscript.nexonet.logger.LoggingType;
 import com.nexoscript.nexonet.logger.NexonetLogger;
-import com.nexoscript.nexonet.packet.crypto.CryptoManager;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
@@ -16,21 +12,15 @@ import java.util.Map;
 public class PacketManager implements IPacketManager {
     private final Map<String, Class<? extends Packet>> packetRegistry;
     private final NexonetLogger logger;
-    private final CryptoManager cryptoManager;
-    private boolean useEncryption = true;
-
-    public PacketManager(NexonetLogger logger, String path, CryptoType type, KeySize size) {
-        this.packetRegistry = new HashMap<>();
-        this.logger = logger;
-        this.cryptoManager = new CryptoManager(this.logger);
-        this.cryptoManager.initCrypto(path, type, size);
-    }
 
     public PacketManager(NexonetLogger logger) {
         this.packetRegistry = new HashMap<>();
         this.logger = logger;
-        this.cryptoManager = new CryptoManager(this.logger);
-        this.useEncryption = false;
+    }
+
+    public PacketManager() {
+        this.packetRegistry = new HashMap<>();
+        this.logger = new NexonetLogger(false);
     }
 
     public void registerPacketType(String type, Class<? extends Packet> clazz) {
@@ -49,23 +39,12 @@ public class PacketManager implements IPacketManager {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        if(useEncryption) {
-            this.logger.log(LoggingType.INFO, "[Crypto Decrypted] : " + json);
-            String s = this.cryptoManager.encryptString(json.toString());
-            this.logger.log(LoggingType.INFO, "[Crypto Encrypted] : " + s);
-            return s;
-        }
         return json.toString();
     }
 
     public Packet fromJson(String jsonString) {
         try {
-            String encrytedString = jsonString;
-            this.logger.log(LoggingType.INFO, "[Crypto Encrypted] : " + encrytedString);
-            if(useEncryption)
-                encrytedString = this.cryptoManager.decryptString(jsonString);
-            this.logger.log(LoggingType.INFO, "[Crypto Decrypted] : " + encrytedString);
-            JSONObject json = new JSONObject(encrytedString);
+            JSONObject json = new JSONObject("{" + jsonString);
             String type = json.getString("type");
             Class<? extends Packet> clazz = this.packetRegistry.get(type);
             if (clazz == null) {

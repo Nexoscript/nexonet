@@ -1,7 +1,5 @@
 package com.nexoscript.nexonet.client;
 
-import com.nexoscript.nexonet.api.crypto.CryptoType;
-import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.api.events.client.ClientConnectEvent;
 import com.nexoscript.nexonet.api.events.client.ClientDisconnectEvent;
 import com.nexoscript.nexonet.api.events.client.ClientReceivedEvent;
@@ -15,7 +13,6 @@ import com.nexoscript.nexonet.packet.PacketManager;
 import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
@@ -38,36 +35,17 @@ public class Client implements IClient {
     private ClientSendEvent clientSendEvent;
     private IPacketManager packetManager;
 
-    public Client(boolean useCrypto) {
-        this.logging = false;
-        this.logger = new NexonetLogger(false);
-        if(useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
-        } else {
-            this.packetManager = new PacketManager(this.logger);
-        }
-        this.initialize();
-    }
-
-    public Client(boolean logging, boolean useCrypto) {
+    public Client(boolean logging) {
         this.logging = logging;
         this.logger = new NexonetLogger(logging);
-        if(useCrypto) {
-            this.packetManager = new PacketManager(this.logger, "secret.key", CryptoType.AES, KeySize.KEY_128);
-        } else {
-            this.packetManager = new PacketManager(this.logger);
-        }
+        this.packetManager = new PacketManager(this.logger);
         this.initialize();
     }
 
-    public Client(boolean logging, boolean useCrypto, String path, CryptoType type, KeySize size) {
+    public Client() {
         this.logging = false;
         this.logger = new NexonetLogger(false);
-        if(useCrypto) {
-            this.packetManager = new PacketManager(this.logger, path, type, size);
-        } else {
-            this.packetManager = new PacketManager(this.logger);
-        }
+        this.packetManager = new PacketManager();
         this.initialize();
     }
 

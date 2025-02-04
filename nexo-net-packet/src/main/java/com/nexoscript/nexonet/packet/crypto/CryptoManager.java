@@ -58,11 +58,9 @@ public class CryptoManager implements ICryptoManager {
     public String encryptString(String data) {
         try {
             this.logger.log(LoggingType.INFO, "Try to encode String");
-            logger.log(LoggingType.INFO, "Crypto: " + data);
-            data = data.replace('{', '=').replace('}', '+');
-            logger.log(LoggingType.INFO, "Crypto: " + data);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+            this.logger.log(LoggingType.INFO, "Crypto: " + data);
+            this.cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(this.cipher.doFinal(data.getBytes()));
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException(e);
         }
@@ -72,19 +70,16 @@ public class CryptoManager implements ICryptoManager {
     public String decryptString(String data) {
         try {
             this.logger.log(LoggingType.INFO, "Try to decode String");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            this.cipher.init(Cipher.DECRYPT_MODE, this.secretKey);
             String s = new String(cipher.doFinal(Base64.getDecoder().decode(data)));
             try {
                 byte[] decoded = cipher.doFinal(Base64.getDecoder().decode(data));
-                logger.log(LoggingType.INFO, "Decoded length: " + decoded.length);
+                this.logger.log(LoggingType.INFO, "Decoded length: " + decoded.length);
             } catch (IllegalArgumentException e) {
-                logger.log(LoggingType.ERROR, "Invalid Base64 input: " + data);
+                this.logger.log(LoggingType.ERROR, "Invalid Base64 input: " + data);
                 throw new RuntimeException("Invalid Base64 encoding", e);
             }
-            //s = '=' + s;
-            logger.log(LoggingType.INFO, "Crypto: " + s);
-            s = s.replace('=', '{').replace('+', '}');
-            logger.log(LoggingType.INFO, "Crypto: " + s);
+            this.logger.log(LoggingType.INFO, "Crypto: " + s);
             return s;
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             throw new RuntimeException(e);

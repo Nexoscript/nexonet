@@ -6,7 +6,7 @@ import com.nexoscript.packets.MessagePacket;
 public class MyClient {
 
     public static void main(String[] args) {
-        Client client = new Client(true, true);
+        Client client = new Client(true);
         client.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
         client.onClientConnect(iClient -> {
             System.out.println("Client connected with ID: " + iClient.getID());
