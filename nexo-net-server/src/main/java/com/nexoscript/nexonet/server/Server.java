@@ -1,7 +1,5 @@
 package com.nexoscript.nexonet.server;
 
-import com.nexoscript.nexonet.api.crypto.CryptoType;
-import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.api.events.server.ServerClientConnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerClientDisconnectEvent;
 import com.nexoscript.nexonet.api.events.server.ServerReceivedEvent;
@@ -17,11 +15,9 @@ import com.nexoscript.nexonet.packet.impl.AuthPacket;
 import com.nexoscript.nexonet.packet.impl.AuthResponsePacket;
 import com.nexoscript.nexonet.packet.impl.DisconnectPacket;
 
-import java.awt.image.ImageProducer;
 import java.io.*;
 import java.net.*;
 
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 

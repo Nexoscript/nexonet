@@ -64,7 +64,6 @@ public class ClientHandler implements Runnable, IClientHandler {
             String clientMessage;
             if(this.clientSocket.isConnected()) {
                 while ((clientMessage = reader.readLine()) != null) {
-                    System.out.println(clientMessage);
                     Packet packet =  this.packetManager.fromJson(clientMessage);
                     if (packet instanceof DisconnectPacket disconnectPacket) {
                         this.server.getLogger().log(LoggingType.INFO, "Client disconnected. Code: " + disconnectPacket.getCode());

@@ -42,7 +42,7 @@ Ensure you are using the latest version by adjusting the version number accordin
 ## Getting Started
 Here are a few simple examples to help you get started with nexo-net.
 
-## Creating a Test Server
+## Creating a Test Server without Encryption
 
 ```java
 import com.nexoscript.nexonet.server.Server;
@@ -51,7 +51,7 @@ import packets.com.nexoscript.MessagePacket;
 public class Testserver {
 
     public static void main(String[] args) {
-        Server server = new Server(true, true);
+        Server server = new Server(true);
         server.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
         server.onClientConnect(client -> {
             System.out.println("Client connected with ID: " + client.getId());
@@ -80,7 +80,53 @@ public class Testserver {
 ```
 This example demonstrates how to create a simple server that listens for incoming connections on port 1234.
 
-## Creating a Test Client
+## Creating a Test Server with Encryption
+
+```java
+package com.nexoscript;
+
+import com.nexoscript.nexonet.api.crypto.CryptoType;
+import com.nexoscript.nexonet.api.crypto.KeySize;
+import com.nexoscript.nexonet.packet.crypto.CryptoManager;
+import com.nexoscript.nexonet.server.Server;
+import com.nexoscript.packets.BytePacket;
+import com.nexoscript.packets.MessagePacket;
+
+public class MyServer {
+
+    public static void main(String[] args) {
+        Server server = new Server(true);
+        CryptoManager cryptoManager = new CryptoManager(server.getLogger());
+        cryptoManager.initCrypto("secret.key", CryptoType.AES, KeySize.KEY_256);
+        server.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
+        server.getPacketManager().registerPacketType("BYTES_PACKET", BytePacket.class);
+        server.onClientConnect(client -> {
+            System.out.println("Client connected with ID: " + client.getId());
+            MessagePacket messagePacket = new MessagePacket(cryptoManager.encryptString(command[2]));
+            server.sendToClient(client.getId(), messagePacket);
+            System.out.println("[System] -> Send Message to Client!");
+        });
+        server.onClientDisconnect(client -> {
+            System.out.println("Client connected with ID: " + client.getId());
+        });
+        server.onServerReceived((client, packet) -> {
+            System.out.println("Server received from client with ID: " + client.getId());
+            if(packet instanceof MessagePacket messagePacket) {
+                System.out.println(cryptoManager.decryptString(messagePacket.getMessage()));
+            }
+        });
+        server.onServerSend((client, packet) -> {});
+        server.start(1234);
+    }
+}
+```
+This example demonstrates how to create a simple server with "encryption" that listens for incoming connections on port 1234.
+
+## Warning
+If you use the Encryption Feature. Please use it on both Client Side and Server Side
+because when you use different problems can occur.
+
+## Creating a Test Client without Encryption
 
 ```java 
 import com.nexoscript.nexonet.client.Client;
@@ -89,7 +135,7 @@ import packets.com.nexoscript.MessagePacket;
 public class Testclient {
 
     public static void main(String[] args) {
-        Client client = new Client(true, true);
+        Client client = new Client(true);
         client.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
         client.onClientConnect(iClient -> {
             System.out.println("Client connected with ID: " + iClient.getID());
@@ -116,6 +162,48 @@ public class Testclient {
 ```
 
 This example demonstrates how to create a client that connects to the previously created server.
+
+## Creating a Test Client with Encryption
+
+```java
+import com.nexoscript.nexonet.api.crypto.CryptoType;
+import com.nexoscript.nexonet.api.crypto.KeySize;
+import com.nexoscript.nexonet.client.Client;
+import com.nexoscript.nexonet.packet.crypto.CryptoManager;
+import com.nexoscript.packets.BytePacket;
+import com.nexoscript.packets.MessagePacket;
+
+public class MyClient {
+
+    public static void main(String[] args) {
+
+        Client client = new Client(true);
+        CryptoManager cryptoManager = new CryptoManager(client.getLogger());
+        cryptoManager.initCrypto("secret.key", CryptoType.AES, KeySize.KEY_256);
+        client.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
+        client.getPacketManager().registerPacketType("BYTES_PACKET", BytePacket.class);
+        client.onClientConnect(iClient -> {
+            System.out.println("Client connected with ID: " + iClient.getID());
+            MessagePacket messagePacket = new MessagePacket(cryptoManager.encryptString(command[1]));
+            client.send(messagePacket);
+            System.out.println("[System] -> Send Message to Server!");
+        });
+        client.onClientDisconnect(iClient -> {
+            System.out.println("Client disconnected with ID: " + iClient.getID());
+        });
+        client.onClientReceived((iClient, packet) -> {
+            System.out.println("Client with ID: " + iClient.getID() + " received!");
+            if(packet instanceof MessagePacket messagePacket) {
+                System.out.println(cryptoManager.decryptString(messagePacket.getMessage()));
+            }
+        });
+        client.onClientSend((iClient, packet) -> {});
+        client.connect("127.0.0.1", 1234);
+    }
+}
+```
+
+This example demonstrates how to create a client with "encryption" that connects to the previously created server.
 
 ## Packet Class
 
