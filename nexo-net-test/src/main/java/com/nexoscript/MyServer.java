@@ -4,7 +4,6 @@ import com.nexoscript.nexonet.api.crypto.CryptoType;
 import com.nexoscript.nexonet.api.crypto.KeySize;
 import com.nexoscript.nexonet.packet.crypto.CryptoManager;
 import com.nexoscript.nexonet.server.Server;
-import com.nexoscript.packets.BytePacket;
 import com.nexoscript.packets.MessagePacket;
 
 import java.util.Scanner;
@@ -35,7 +34,6 @@ public class MyServer {
             }
         });
         server.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
-        server.getPacketManager().registerPacketType("BYTES_PACKET", BytePacket.class);
         server.onClientConnect(client -> {
             System.out.println("Client connected with ID: " + client.getId());
         });

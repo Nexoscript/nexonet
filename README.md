@@ -99,7 +99,6 @@ public class MyServer {
         CryptoManager cryptoManager = new CryptoManager(server.getLogger());
         cryptoManager.initCrypto("secret.key", CryptoType.AES, KeySize.KEY_256);
         server.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
-        server.getPacketManager().registerPacketType("BYTES_PACKET", BytePacket.class);
         server.onClientConnect(client -> {
             System.out.println("Client connected with ID: " + client.getId());
             MessagePacket messagePacket = new MessagePacket(cryptoManager.encryptString(command[2]));
@@ -181,7 +180,6 @@ public class MyClient {
         CryptoManager cryptoManager = new CryptoManager(client.getLogger());
         cryptoManager.initCrypto("secret.key", CryptoType.AES, KeySize.KEY_256);
         client.getPacketManager().registerPacketType("MESSAGE_PACKET", MessagePacket.class);
-        client.getPacketManager().registerPacketType("BYTES_PACKET", BytePacket.class);
         client.onClientConnect(iClient -> {
             System.out.println("Client connected with ID: " + iClient.getID());
             MessagePacket messagePacket = new MessagePacket(cryptoManager.encryptString(command[1]));
