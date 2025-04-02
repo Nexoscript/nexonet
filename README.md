@@ -1,6 +1,7 @@
 # nexonet
 
-> [!CAUTION] > **nexonet** is a user-friendly and modern networking library currently in a very early stage of development.  
+> [!CAUTION]
+> **nexonet** is a user-friendly and modern networking library currently in a very early stage of development.  
 > It should only be used for testing and contributions at this time.
 
 ## About
