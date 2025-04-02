@@ -1,17 +1,16 @@
 # nexonet
 
-> [!CAUTION]
-> **nexonet** is a user-friendly and modern networking library currently in a very early stage of development.  
+> [!CAUTION] > **nexonet** is a user-friendly and modern networking library currently in a very early stage of development.  
 > It should only be used for testing and contributions at this time.
 
 ## About
 
-nexo-net aims to provide developers with a simple way to implement networking operations in their applications.  
+nexonet aims to provide developers with a simple way to implement networking operations in their applications.  
 The library is written in Java and leverages modern programming paradigms to offer an intuitive API.
 
 ## Installation
 
-To use nexo-net in your project, add it as a dependency in your `pom.xml`:
+To use nexonet in your project, add it as a dependency in your `pom.xml`:
 
 ```xml
 <repositories>
@@ -25,28 +24,30 @@ To use nexo-net in your project, add it as a dependency in your `pom.xml`:
 ```xml
 <dependency>
     <groupId>com.nexoscript</groupId>
-    <artifactId>nexo-net-client</artifactId>
-    <version>0.1.0</version>
+    <artifactId>nexonet-client</artifactId>
+    <version>0.1.1</version>
 </dependency>
 ```
+
 ```xml
 <dependency>
     <groupId>com.nexoscript</groupId>
-    <artifactId>nexo-net-server</artifactId>
-    <version>0.1.0</version>
+    <artifactId>nexonet-server</artifactId>
+    <version>0.1.1</version>
 </dependency>
 ```
 
 Ensure you are using the latest version by adjusting the version number accordingly.
 
 ## Getting Started
+
 Here are a few simple examples to help you get started with nexo-net.
 
 ## Creating a Test Server without Encryption
 
 ```java
 import com.nexoscript.nexonet.server.Server;
-import packets.com.nexoscript.MessagePacket;
+import com.nexoscript.packets.MessagePacket;
 
 public class Testserver {
 
@@ -78,6 +79,7 @@ public class Testserver {
     }
 }
 ```
+
 This example demonstrates how to create a simple server that listens for incoming connections on port 1234.
 
 ## Creating a Test Server with Encryption
@@ -119,17 +121,19 @@ public class MyServer {
     }
 }
 ```
+
 This example demonstrates how to create a simple server with "encryption" that listens for incoming connections on port 1234.
 
 ## Warning
+
 If you use the Encryption Feature. Please use it on both Client Side and Server Side
 because when you use different problems can occur.
 
 ## Creating a Test Client without Encryption
 
-```java 
+```java
 import com.nexoscript.nexonet.client.Client;
-import packets.com.nexoscript.MessagePacket;
+import com.nexoscript.packets.MessagePacket;
 
 public class Testclient {
 
@@ -236,13 +240,14 @@ public class MessagePacket extends Packet {
     }
 }
 ```
+
 This is the Packet Class that is used in Client Server Example.
 If you need your own Packet than you can create your own Class with an empty Constructor and your Variables
 
 ## Contributions
 
-As nexo-net is in a very early stage of development, contributions are welcome.
-Please fork the repository, make your changes, and submit a pull request.
+As nexonet is in a very early stage of development, contributions are welcome.
+Please fork the repository, make your changes, and submit your changes with a pull request.
 
 ## License
 
@@ -251,4 +256,9 @@ For more information, see the [LICENSE](LICENSE).
 
 Note: nexo-net is in a very early stage of development. Use it only for testing and contributions at this time.
 
+## Security
 
+**Do not** create a issue or pull request for security relevanted context.
+For more information, see the [SECURITY POLICY](SECURITY).
+
+Note: nexonet is in a very early stage of development. Use it only for testing and contributions at this time. Use at your own risk.

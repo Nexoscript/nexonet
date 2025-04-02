@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.nexoscript</groupId>
-        <artifactId>nexo-net</artifactId>
-        <version>0.1.1-dev</version>
+        <artifactId>nexonet</artifactId>
+        <version>0.1.1</version>
     </parent>
 
-    <artifactId>nexo-net-test</artifactId>
+    <artifactId>nexonet-test</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -20,13 +20,13 @@
     <dependencies>
         <dependency>
             <groupId>com.nexoscript</groupId>
-            <artifactId>nexo-net-client</artifactId>
-            <version>0.1.1-dev</version>
+            <artifactId>nexonet-client</artifactId>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.nexoscript</groupId>
-            <artifactId>nexo-net-server</artifactId>
-            <version>0.1.1-dev</version>
+            <artifactId>nexonet-server</artifactId>
+            <version>0.1.1</version>
         </dependency>
     </dependencies>
 </project>

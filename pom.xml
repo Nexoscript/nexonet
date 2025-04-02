@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.nexoscript</groupId>
-    <artifactId>nexo-net</artifactId>
-    <version>0.1.1-dev</version>
+    <artifactId>nexonet</artifactId>
+    <version>0.1.1</version>
 
     <packaging>pom</packaging>
 
     <modules>
-        <module>nexo-net-api</module>
-        <module>nexo-net-client</module>
-        <module>nexo-net-logger</module>
-        <module>nexo-net-packet</module>
-        <module>nexo-net-server</module>
-        <module>nexo-net-test</module>
+        <module>nexonet-api</module>
+        <module>nexonet-client</module>
+        <module>nexonet-logger</module>
+        <module>nexonet-packet</module>
+        <module>nexonet-server</module>
+        <module>nexonet-test</module>
     </modules>
 
     <properties>
