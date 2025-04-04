@@ -255,7 +255,7 @@ Please fork the repository, make your changes, and submit your changes with a pu
 This project is licensed under the MIT License.
 For more information, see the [LICENSE](LICENSE).
 
-Note: nexo-net is in a very early stage of development. Use it only for testing and contributions at this time.
+Note: nexonet is in a very early stage of development. Use it only for testing and contributions at this time.
 
 ## Security
 
