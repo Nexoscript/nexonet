@@ -29,11 +29,14 @@ public class Server implements IServer {
     private int port;
     private String hostname = "127.0.0.1";
     private InetSocketAddress ip;
+    private ServerSocket serverSocket;
     private ServerClientConnectEvent clientConnectEvent;
     private ServerClientDisconnectEvent clientDisconnectEvent;
     private ServerReceivedEvent serverReceivedEvent;
     private ServerSendEvent serverSendEvent;
     private IPacketManager packetManager;
+    private Thread thread;
+    private boolean useThread;
 
     public Server() {
         this.logging = false;
@@ -57,15 +60,36 @@ public class Server implements IServer {
         this.initialize();
     }
 
+    public Server(boolean logging, boolean useThread) {
+        this.logging = logging;
+        this.logger = new NexonetLogger(logging);
+        this.useThread = useThread;
+        this.packetManager = new PacketManager(this.logger);
+        this.initialize();
+    }
+
+    public Server(String hostname, boolean logging, boolean useThread) {
+        this.hostname = hostname;
+        this.logging = logging;
+        this.logger = new NexonetLogger(logging);
+        this.useThread = useThread;
+        this.packetManager = new PacketManager(this.logger);
+        this.initialize();
+    }
+
     private void initialize() {
         this.clients = new ArrayList<>();
         this.packetManager.registerPacketType("AUTH", AuthPacket.class);
         this.packetManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
         this.packetManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
-        this.clientConnectEvent = (client) -> {};
-        this.clientDisconnectEvent = (client) -> {};
-        this.serverReceivedEvent = (client, packet) -> {};
-        this.serverSendEvent = (client, packet) -> {};
+        this.clientConnectEvent = (client) -> {
+        };
+        this.clientDisconnectEvent = (client) -> {
+        };
+        this.serverReceivedEvent = (client, packet) -> {
+        };
+        this.serverSendEvent = (client, packet) -> {
+        };
     }
 
     @Override
@@ -73,8 +97,43 @@ public class Server implements IServer {
         this.port = port;
         this.ip = new InetSocketAddress(this.hostname, this.port);
         isRunning = true;
-        this.logger.log(LoggingType.INFO, "Starting Nexonet server...");
-        try (ServerSocket serverSocket = new ServerSocket(this.ip.getPort())) {
+        this.logger.log(LoggingType.INFO, "Starting nexonet server...");
+        if (this.useThread) {
+            this.thread = new Thread(this::handle);
+            return;
+        }
+        this.handle();
+    }
+
+    @Override
+    public void stop() {
+        try {
+            this.serverSocket.close();
+            this.thread.interrupt();
+            this.logger.log(LoggingType.INFO, "nexonet server stopped.");
+            this.isRunning = false;
+            this.clients.clear();
+            this.serverSocket = null;
+            this.thread = null;
+            this.clientConnectEvent = null;
+            this.clientDisconnectEvent = null;
+            this.serverReceivedEvent = null;
+            this.serverSendEvent = null;
+            this.packetManager = null;
+            this.logger = null;
+            this.ip = null;
+            this.port = 0;
+            this.hostname = null;
+            this.logging = false;
+            this.useThread = false;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handle() {
+        try {
+            this.serverSocket = new ServerSocket(this.ip.getPort());
             this.logger.log(LoggingType.INFO, "Waiting for client connections...");
             while (isRunning) {
                 Socket clientSocket = serverSocket.accept();
@@ -100,7 +159,7 @@ public class Server implements IServer {
     @Override
     public void sendToClient(String clientID, Packet packet) {
         this.getClients().forEach(client -> {
-            if(client.getId().equalsIgnoreCase(clientID)) {
+            if (client.getId().equalsIgnoreCase(clientID)) {
                 client.getWriter().println(this.packetManager.toJson(packet));
                 client.getWriter().flush();
                 this.serverSendEvent.onServerSend(client, packet);
@@ -111,9 +170,9 @@ public class Server implements IServer {
     @Override
     public void sendToClients(Packet packet) {
         this.getClients().forEach(client -> {
-                client.getWriter().println(this.packetManager.toJson(packet));
-                client.getWriter().flush();
-                this.serverSendEvent.onServerSend(client, packet);
+            client.getWriter().println(this.packetManager.toJson(packet));
+            client.getWriter().flush();
+            this.serverSendEvent.onServerSend(client, packet);
         });
     }
 

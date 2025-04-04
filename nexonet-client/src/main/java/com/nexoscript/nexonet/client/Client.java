@@ -21,7 +21,7 @@ import java.util.UUID;
 public class Client implements IClient {
     private boolean isAuth;
     private boolean logging;
-    private NexonetLogger logger;
+    private final NexonetLogger logger;
     private String id;
     private boolean isRunning = false;
     private Socket socket;
@@ -33,7 +33,17 @@ public class Client implements IClient {
     private ClientDisconnectEvent clientDisconnectEvent;
     private ClientReceivedEvent clientReceivedEvent;
     private ClientSendEvent clientSendEvent;
-    private IPacketManager packetManager;
+    private final IPacketManager packetManager;
+    private boolean useThread;
+    private Thread thread;
+
+    public Client(boolean logging, boolean useThread) {
+        this.logging = logging;
+        this.logger = new NexonetLogger(logging);
+        this.useThread = useThread;
+        this.packetManager = new PacketManager(this.logger);
+        this.initialize();
+    }
 
     public Client(boolean logging) {
         this.logging = logging;
@@ -45,6 +55,7 @@ public class Client implements IClient {
     public Client() {
         this.logging = false;
         this.logger = new NexonetLogger(false);
+        this.useThread = false;
         this.packetManager = new PacketManager();
         this.initialize();
     }
@@ -53,10 +64,14 @@ public class Client implements IClient {
         this.packetManager.registerPacketType("AUTH", AuthPacket.class);
         this.packetManager.registerPacketType("AUTH_RESPONSE", AuthResponsePacket.class);
         this.packetManager.registerPacketType("DISCONNECT", DisconnectPacket.class);
-        this.clientConnectEvent = (client) -> {};
-        this.clientDisconnectEvent = (client) -> {};
-        this.clientReceivedEvent = (client, packet) -> {};
-        this.clientSendEvent = (client, packet) -> {};
+        this.clientConnectEvent = (client) -> {
+        };
+        this.clientDisconnectEvent = (client) -> {
+        };
+        this.clientReceivedEvent = (client, packet) -> {
+        };
+        this.clientSendEvent = (client, packet) -> {
+        };
     }
 
     @Override
@@ -64,7 +79,15 @@ public class Client implements IClient {
         this.hostname = hostname;
         this.port = port;
         this.logger.log(LoggingType.INFO, "Connecting to server...");
-        try  {
+        if (this.useThread) {
+            this.thread = new Thread(this::handle);
+            return;
+        }
+        this.handle();
+    }
+
+    private void handle() {
+        try {
             this.socket = new Socket(this.hostname, this.port);
             this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.writer = new PrintWriter(socket.getOutputStream(), true);
@@ -72,16 +95,16 @@ public class Client implements IClient {
             this.logger.log(LoggingType.INFO, "Connected to server");
             this.isRunning = true;
             while (isRunning) {
-                if(!isAuth) {
+                if (!isAuth) {
                     this.logger.log(LoggingType.INFO, "Send auth packet to server.");
                     send(new AuthPacket(UUID.randomUUID().toString()));
                 }
                 String serverResponse;
-                if(reader.read() > 0) {
+                if (reader.read() > 0) {
                     if ((serverResponse = reader.readLine()) != null) {
                         serverResponse = "{" + serverResponse;
                         Packet packet = this.packetManager.fromJson(serverResponse);
-                        if(this.isAuth) {
+                        if (this.isAuth) {
                             this.clientReceivedEvent.onClientReceived(this, packet);
                         }
                         if (packet instanceof AuthResponsePacket authResponsePacket) {
@@ -98,7 +121,7 @@ public class Client implements IClient {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
         }
     }
 
@@ -115,12 +138,12 @@ public class Client implements IClient {
     }
 
     @Override
-    public String getID() {
+    public String getId() {
         return this.id;
     }
 
     @Override
-    public void setID(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -137,10 +160,19 @@ public class Client implements IClient {
     @Override
     public void disconnect() {
         try {
-            this.logger.log(LoggingType.INFO, "Client Try to Disconnect!");
-            send(new DisconnectPacket(0));
+            this.logger.log(LoggingType.INFO, "Client try to disconnect!");
+            this.send(new DisconnectPacket(0));
             this.clientDisconnectEvent.onClientDisconnect(this);
-            socket.close();
+            this.socket.close();
+            this.logger.log(LoggingType.INFO, "Client disconnected!");
+            this.isRunning = false;
+            this.id = null;
+            this.socket = null;
+            this.reader = null;
+            this.writer = null;
+            this.thread = null;
+            this.clientConnectEvent = null;
+            this.clientDisconnectEvent = null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -189,5 +221,21 @@ public class Client implements IClient {
     @Override
     public IPacketManager getPacketManager() {
         return packetManager;
+    }
+
+    public boolean isLogging() {
+        return logging;
+    }
+
+    public void setLogging(boolean logging) {
+        this.logging = logging;
+    }
+
+    public boolean isUseThread() {
+        return useThread;
+    }
+
+    public void setUseThread(boolean useThread) {
+        this.useThread = useThread;
     }
 }

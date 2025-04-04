@@ -18,6 +18,7 @@ public interface IServer {
     InetSocketAddress getIpAddress();
     void setIpAddress(InetSocketAddress ipAddress);
     void start(int port);
+    void stop();
     NexonetLogger getLogger();
     List<IClientHandler> getClients();
     void sendToClient(String clientID, Packet packet);

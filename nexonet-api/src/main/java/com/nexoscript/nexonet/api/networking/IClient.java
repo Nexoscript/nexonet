@@ -19,8 +19,8 @@ import java.net.Socket;
 import java.util.function.Consumer;
 
 public interface IClient {
-    String getID();
-    void setID(String id);
+    String getId();
+    void setId(String id);
     boolean isRunning();
     Socket getSocket();
     void disconnect();
